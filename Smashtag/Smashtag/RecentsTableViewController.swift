@@ -26,7 +26,7 @@ class RecentsTableViewController: UITableViewController {
     private struct Storyboard {
         private static let RecentCell = "Recent Cell"
         private static let TweetsSegue = "Show Tweets from Recent"
-        private static let PopularSegueIdentifier = "Recent to Popular"
+        private static let PopularSegueIdentifier = "ShowPopularMensions"
     }
     
     // MARK: - UITableViewDataSource
@@ -72,8 +72,12 @@ class RecentsTableViewController: UITableViewController {
             let ttvc = segue.destinationViewController as? TweetTableViewController
         {
             ttvc.searchText = cell.textLabel?.text
+        } else  if let identifier = segue.identifier where identifier == Storyboard.PopularSegueIdentifier,
+            let cell = sender as? UITableViewCell,
+            let pvc = segue.destinationViewController as? PopularityTableViewController
+        {
+            pvc.mention = cell.textLabel?.text
         }
-        
     }
-
-   }
+    
+}

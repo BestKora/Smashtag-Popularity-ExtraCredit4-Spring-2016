@@ -8,10 +8,12 @@
 
 import UIKit
 import Twitter
+import CoreData
 
 class TweetTableViewController: UITableViewController, UITextFieldDelegate
 {
     // MARK: Model
+    var moc: NSManagedObjectContext?
 
     var tweets = [Array<Twitter.Tweet>](){
         didSet {
@@ -52,6 +54,9 @@ class TweetTableViewController: UITableViewController, UITextFieldDelegate
                     if request == weakSelf?.lastTwitterRequest {
                         if !newTweets.isEmpty {
                             weakSelf?.tweets.insert(newTweets, atIndex: 0)
+                            
+                             weakSelf?.updateDatabase(newTweets)
+                            
                              weakSelf?.tableView.reloadData()
                             sender?.endRefreshing()
                             }
@@ -64,7 +69,35 @@ class TweetTableViewController: UITableViewController, UITextFieldDelegate
         }
     }
     
-    
+    private func updateDatabase(newTweets: [Twitter.Tweet]) {
+        moc?.performBlock {
+            for twitterInfo in newTweets {
+               TweetM.tweetWithTwitterInfo(twitterInfo,
+                                           andSearchTerm: self.searchText!,
+                                           inManagedObjectContext: self.moc!)
+            }
+         self.moc?.saveThrows()
+        }
+        printDatabaseStatistics() 
+    }
+ 
+    private func printDatabaseStatistics() {
+        moc?.performBlock {
+            if let results = try? self.moc!.executeFetchRequest(NSFetchRequest(
+                                                                           entityName: "TweetM")) {
+                print("\(results.count) TweetMs")
+            }
+            // a more efficient way to count objects ...
+            let searchCount = self.moc!.countForFetchRequest(NSFetchRequest(entityName: "SearchTerm"),
+                                                                                            error: nil)
+            print("\(searchCount) SearchTerms")
+            let mensionCount = self.moc!.countForFetchRequest(NSFetchRequest(entityName: "Mension"),
+                                                                                            error: nil)
+            print("\(mensionCount) Mensions")
+
+        }
+    }
+
     private func searchForTweets () {
         refreshControl?.beginRefreshing()
         searchForTweets(refreshControl)
@@ -134,6 +167,9 @@ class TweetTableViewController: UITableViewController, UITextFieldDelegate
           if tweets.count == 0 {
              searchForTweets()
         }
+        if RecentSearches.searches.first == nil {
+             RecentSearches.add(searchText!)
+        }
         
         let imageButton = UIBarButtonItem(barButtonSystemItem: .Camera,
                                           target: self,
@@ -161,6 +197,15 @@ class TweetTableViewController: UITableViewController, UITextFieldDelegate
     
     func showImages(sender: UIBarButtonItem) {
         performSegueWithIdentifier(Storyboard.ImagesIdentifier, sender: sender)
+    }
+    
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+        if moc == nil {
+            UIManagedDocument.useDocument{ (document) in
+                    self.moc =  document.managedObjectContext
+            }
+        }
     }
 
     
