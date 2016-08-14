@@ -71,14 +71,20 @@ class TweetTableViewController: UITableViewController, UITextFieldDelegate
     
     private func updateDatabase(newTweets: [Twitter.Tweet]) {
         moc?.performBlock {
-            for twitterInfo in newTweets {
+            
+               TweetM.newTweetsWithTwitterInfo(newTweets,
+                andSearchTerm: self.searchText!,
+                inManagedObjectContext: self.moc!)
+
+          /*  for twitterInfo in newTweets {
                TweetM.tweetWithTwitterInfo(twitterInfo,
                                            andSearchTerm: self.searchText!,
                                            inManagedObjectContext: self.moc!)
-            }
+            }*/
          self.moc?.saveThrows()
         }
-        printDatabaseStatistics() 
+        printDatabaseStatistics()
+        print("done printing printDatabaseStatistics")
     }
  
     private func printDatabaseStatistics() {
@@ -94,7 +100,6 @@ class TweetTableViewController: UITableViewController, UITextFieldDelegate
             let mensionCount = self.moc!.countForFetchRequest(NSFetchRequest(entityName: "Mension"),
                                                                                             error: nil)
             print("\(mensionCount) Mensions")
-
         }
     }
 

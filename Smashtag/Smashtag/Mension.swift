@@ -15,7 +15,7 @@ class Mension: NSManagedObject {
 
     class func addMensionWithKeyword(keyword: String,
                                      andType type: String,
-                                     andTerm term:String,
+                                     andTerm term:String, andTweetM tweetM:TweetM,
                                      inManagedObjectContext context: NSManagedObjectContext) -> Mension?
     {
         let request = NSFetchRequest(entityName: "Mension")
@@ -23,7 +23,9 @@ class Mension: NSManagedObject {
         
         if let mentionM = (try? context.executeFetchRequest(request))?.first as? Mension {
             // found this mension in the database, count + 1, return it ...
-            mentionM.count = mentionM.count.integerValue + 1
+            mentionM.count = mentionM.count!.integerValue + 1
+            let tweetMs = mentionM.mutableSetValueForKey("tweetMs")
+            tweetMs.addObject(tweetM)
             return mentionM
         } else if let mentionM = NSEntityDescription.insertNewObjectForEntityForName("Mension",
                                                          inManagedObjectContext: context) as? Mension {
@@ -33,31 +35,50 @@ class Mension: NSManagedObject {
             mentionM.type = type
             mentionM.term = SearchTerm.termWithTerm(term, inManagedObjectContext: context)!
             mentionM.count = 1
+            let tweetMs = mentionM.mutableSetValueForKey("tweetMs")
+            tweetMs.addObject(tweetM)
             return mentionM
         }
         
         return nil
     }
     
-    class func mensionsWithTwitterInfo(twitterInfo: Twitter.Tweet,
+    class func mensionsWithTwitterInfo(twitterInfo: Twitter.Tweet, andTweetM tweetM:TweetM,
                                        andSearchTerm term: String,
                                        inManagedObjectContext context: NSManagedObjectContext)
     {
         let hashtags = twitterInfo.hashtags
         for hashtag in hashtags{
             Mension.addMensionWithKeyword(hashtag.keyword,
-                                          andType: "Hashtags", andTerm: term,
+                                          andType: "Hashtags", andTerm: term, andTweetM:tweetM,
                                           inManagedObjectContext: context)
         }
         let users = twitterInfo.userMentions
         for user in users {
-            Mension.addMensionWithKeyword(user.keyword, andType: "Users", andTerm: term,
+            Mension.addMensionWithKeyword(user.keyword, andType: "Users", andTerm: term,andTweetM:tweetM,
                                           inManagedObjectContext: context)
         }
         // Для пользователя твита
         let userScreenName = "@" + twitterInfo.user.screenName
-        Mension.addMensionWithKeyword(userScreenName, andType: "Users", andTerm: term,
+        Mension.addMensionWithKeyword(userScreenName, andType: "Users", andTerm: term, andTweetM:tweetM,
                                       inManagedObjectContext: context)
         
     }
+    
+/*    class func removeMensionsForTweetM(mensionsM:Set<Mension>, inManagedObjectContext context: NSManagedObjectContext) {
+        for mensionM in mensionsM {
+            mensionM.count = mensionM.count!.integerValue - 1
+        }
+    }*/
+    
+    override func prepareForDeletion() {
+        guard let termMension = term else { return }
+        if let mensions = termMension.mensions where
+            mensions.filter ({ !$0.deleted }).isEmpty {
+            managedObjectContext?.deleteObject(termMension)
+        }
+    }
+
 }
+
+

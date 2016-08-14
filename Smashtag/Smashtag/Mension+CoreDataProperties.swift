@@ -2,7 +2,7 @@
 //  Mension+CoreDataProperties.swift
 //  Smashtag
 //
-//  Created by Tatiana Kornilova on 8/10/16.
+//  Created by Tatiana Kornilova on 8/13/16.
 //  Copyright © 2016 Stanford University. All rights reserved.
 //
 //  Choose "Create NSManagedObject Subclass…" from the Core Data editor menu
@@ -14,9 +14,10 @@ import CoreData
 
 extension Mension {
 
-    @NSManaged var keyword: String
-    @NSManaged var type: String
-    @NSManaged var count: NSNumber
-    @NSManaged var term: SearchTerm
+    @NSManaged var count: NSNumber?
+    @NSManaged var keyword: String?
+    @NSManaged var type: String?
+    @NSManaged var tweetMs: NSSet?
+    @NSManaged var term: SearchTerm?
 
 }

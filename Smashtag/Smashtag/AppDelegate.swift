@@ -15,7 +15,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-        // Override point for customization after application launch.
+        UIManagedDocument.useDocument{ (document) in
+        if let moc = document.managedObjectContext.parentContext {
+                TweetM.removeOldTweets(moc)
+                moc.saveThrows()
+            }
+        }
+
         return true
     }
 

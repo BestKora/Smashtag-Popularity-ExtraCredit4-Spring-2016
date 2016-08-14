@@ -58,7 +58,7 @@ class PopularityTableViewController: CoreDataTableViewController {
         if let mensionM = fetchedResultsController?.objectAtIndexPath(indexPath) as? Mension {
             mensionM.managedObjectContext?.performBlockAndWait {  // asynchronous
                 keyword =  mensionM.keyword
-                count =  mensionM.count.stringValue
+                count =  mensionM.count!.stringValue
             }
             cell.textLabel?.text = keyword
             cell.detailTextLabel?.text = "tweets.count: " + (count ?? "-")
