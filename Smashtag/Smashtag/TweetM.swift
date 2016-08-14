@@ -105,14 +105,13 @@ class TweetM: NSManagedObject {
     
     private struct Constants {
         static let TimeToREemoveOldTweets:NSTimeInterval  = 60*60*24*7
-
           }
 
-    class func removeOldTweets(context: NSManagedObjectContext)
-    {
+    class func removeOldTweets(context: NSManagedObjectContext) {
         let request = NSFetchRequest(entityName: "TweetM")
         request.predicate = NSPredicate(
-            format: "posted < %@", NSDate(timeIntervalSinceNow: -Constants.TimeToREemoveOldTweets) )
+            format: "posted < %@", NSDate(timeIntervalSinceNow:
+                                            -Constants.TimeToREemoveOldTweets) )
         
         let results = try? context.executeFetchRequest(request)
         if let tweetMs = results as? [TweetM] {
@@ -122,9 +121,10 @@ class TweetM: NSManagedObject {
             
         }
     }
+    
     override func prepareForDeletion() {
         guard let mensionsM = mensionsTweetM as? Set<Mension> else { return }
-    //    Mension.removeMensionsForTweetM(mensionsM , inManagedObjectContext: managedObjectContext!)
+
         for mension in mensionsM  {
             mension.count = mension.count!.integerValue - 1
             if mension.count == 0 {

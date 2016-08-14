@@ -24,8 +24,10 @@ class Mension: NSManagedObject {
         if let mentionM = (try? context.executeFetchRequest(request))?.first as? Mension {
             // found this mension in the database, count + 1, return it ...
             mentionM.count = mentionM.count!.integerValue + 1
+            
             let tweetMs = mentionM.mutableSetValueForKey("tweetMs")
             tweetMs.addObject(tweetM)
+            
             return mentionM
         } else if let mentionM = NSEntityDescription.insertNewObjectForEntityForName("Mension",
                                                          inManagedObjectContext: context) as? Mension {
@@ -35,8 +37,10 @@ class Mension: NSManagedObject {
             mentionM.type = type
             mentionM.term = SearchTerm.termWithTerm(term, inManagedObjectContext: context)!
             mentionM.count = 1
+            
             let tweetMs = mentionM.mutableSetValueForKey("tweetMs")
             tweetMs.addObject(tweetM)
+            
             return mentionM
         }
         
@@ -65,17 +69,11 @@ class Mension: NSManagedObject {
         
     }
     
-/*    class func removeMensionsForTweetM(mensionsM:Set<Mension>, inManagedObjectContext context: NSManagedObjectContext) {
-        for mensionM in mensionsM {
-            mensionM.count = mensionM.count!.integerValue - 1
-        }
-    }*/
-    
     override func prepareForDeletion() {
         guard let termMension = term else { return }
         if let mensions = termMension.mensions where
-            mensions.filter ({ !$0.deleted }).isEmpty {
-            managedObjectContext?.deleteObject(termMension)
+               mensions.filter ({ !$0.deleted }).isEmpty {
+                  managedObjectContext?.deleteObject(termMension)
         }
     }
 

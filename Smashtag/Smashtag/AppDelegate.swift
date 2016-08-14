@@ -14,11 +14,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
 
-    func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
+    func application(application: UIApplication,
+                     didFinishLaunchingWithOptions
+                         launchOptions: [NSObject: AnyObject]?) -> Bool {
+        
+        // Удаляем старые твиты
         UIManagedDocument.useDocument{ (document) in
         if let moc = document.managedObjectContext.parentContext {
-                TweetM.removeOldTweets(moc)
-                moc.saveThrows()
+            TweetM.removeOldTweets(moc)
+            moc.saveThrows()
             }
         }
 
