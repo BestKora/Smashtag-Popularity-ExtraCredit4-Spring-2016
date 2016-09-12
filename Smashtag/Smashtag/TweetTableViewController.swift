@@ -193,7 +193,7 @@ class TweetTableViewController: UITableViewController, UITextFieldDelegate
                                           target: self,
                                           action: #selector(TweetTableViewController.showImages(_:)))
         navigationItem.rightBarButtonItems = [imageButton]
-        if navigationController?.viewControllers == nil  ||  navigationController?.viewControllers.count > 2 {
+        if navigationController?.viewControllers.count > 1 {
             
             let stopBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Stop,
                                                     target: self,
